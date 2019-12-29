@@ -1,0 +1,35 @@
+version: '2'
+services:
+  l6_nginx:
+    container_name: l6_nginx
+    build:
+      context: ./
+      dockerfile: deploy/web.docker
+    volumes:
+      - ./:/var/www
+    ports:
+      - "8081:80"
+    links:
+      - l6_app
+    networks:
+      - l6-network
+  l6_app:
+    container_name: l6_app
+    build:
+      context: ./
+      dockerfile: deploy/app.docker
+    environment:
+      - "REDIS_HOST=l6_redis"
+    volumes:
+      - ./:/var/www
+    networks:
+      - l6-network
+  l6_redis:
+    container_name: l6_redis
+    image: redis:3.0-alpine
+    networks:
+      - l6-network
+
+networks:
+  l6-network:
+    driver: bridge
